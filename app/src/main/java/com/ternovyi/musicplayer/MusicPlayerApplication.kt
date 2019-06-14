@@ -1,7 +1,7 @@
 package com.ternovyi.musicplayer
 
 import android.app.Application
-import android.databinding.DataBindingUtil
+import androidx.databinding.DataBindingUtil
 import com.ternovyi.musicplayer.util.databinding.DefaultDataBindingComponent
 
 class MusicPlayerApplication : Application() {

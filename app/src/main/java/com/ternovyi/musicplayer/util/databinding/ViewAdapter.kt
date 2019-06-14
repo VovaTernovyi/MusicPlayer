@@ -1,10 +1,10 @@
 package com.ternovyi.musicplayer.util.databinding
 
-import android.databinding.BindingAdapter
 import android.net.Uri
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import java.io.File
 
