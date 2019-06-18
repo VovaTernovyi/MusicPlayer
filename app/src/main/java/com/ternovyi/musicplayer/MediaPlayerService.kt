@@ -109,7 +109,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
         //ACTION_AUDIO_BECOMING_NOISY -- change in audio outputs -- BroadcastReceiver
         registerBecomingNoisyReceiver()
         //Listen for new Audio to play -- BroadcastReceiver
-        register_playNewAudio()
+        registerPlayNewAudio()
     }
 
     //The system calls this method when an activity, requests the service be started
@@ -269,12 +269,14 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     /**
      * AudioFocus
      */
+    @Suppress("DEPRECATION")
     private fun requestAudioFocus(): Boolean {
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val result = audioManager!!.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
+    @Suppress("DEPRECATION")
     private fun removeAudioFocus(): Boolean {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == audioManager!!.abandonAudioFocus(this)
     }
@@ -283,6 +285,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     /**
      * MediaPlayer actions
      */
+    @Suppress("DEPRECATION")
     private fun initMediaPlayer() {
         if (mediaPlayer == null)
             mediaPlayer = MediaPlayer()//new MediaPlayer instance
@@ -422,6 +425,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     /**
      * MediaSession and Notification actions
      */
+    @Suppress("DEPRECATION")
     @Throws(RemoteException::class)
     private fun initMediaSession() {
         if (mediaSessionManager != null) return  //mediaSessionManager exists
@@ -479,10 +483,6 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
                 //Stop the service
                 stopSelf()
             }
-
-            override fun onSeekTo(position: Long) {
-                super.onSeekTo(position)
-            }
         })
     }
 
@@ -502,6 +502,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
         )
     }
 
+    @Suppress("DEPRECATION")
     private fun buildNotification(playbackStatus: PlaybackStatus) {
 
         /**
@@ -513,17 +514,17 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
          */
 
         var notificationAction = android.R.drawable.ic_media_pause//needs to be initialized
-        var play_pauseAction: PendingIntent? = null
+        var actionPlayPause: PendingIntent? = null
 
         //Build a new notification according to the current state of the MediaPlayer
         if (playbackStatus === PlaybackStatus.PLAYING) {
             notificationAction = android.R.drawable.ic_media_pause
             //create the pause action
-            play_pauseAction = playbackAction(1)
+            actionPlayPause = playbackAction(1)
         } else if (playbackStatus === PlaybackStatus.PAUSED) {
             notificationAction = android.R.drawable.ic_media_play
             //create the play action
-            play_pauseAction = playbackAction(0)
+            actionPlayPause = playbackAction(0)
         }
 
         val largeIcon = BitmapFactory.decodeResource(
@@ -554,7 +555,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
             .setContentInfo(activeAudio!!.title)
             // Add playback actions
             .addAction(android.R.drawable.ic_media_previous, "previous", playbackAction(3))
-            .addAction(notificationAction, "pause", play_pauseAction)
+            .addAction(notificationAction, "pause", actionPlayPause)
             .addAction(android.R.drawable.ic_media_next, "next", playbackAction(2)) as Notification.Builder
 
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(
@@ -602,34 +603,30 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
         if (playbackAction == null || playbackAction.action == null) return
 
         val actionString = playbackAction.action
-        if (actionString!!.equals(ACTION_PLAY, ignoreCase = true)) {
-            transportControls!!.play()
-        } else if (actionString.equals(ACTION_PAUSE, ignoreCase = true)) {
-            transportControls!!.pause()
-        } else if (actionString.equals(ACTION_NEXT, ignoreCase = true)) {
-            transportControls!!.skipToNext()
-        } else if (actionString.equals(ACTION_PREVIOUS, ignoreCase = true)) {
-            transportControls!!.skipToPrevious()
-        } else if (actionString.equals(ACTION_STOP, ignoreCase = true)) {
-            transportControls!!.stop()
+        when {
+            actionString!!.equals(ACTION_PLAY, ignoreCase = true) -> transportControls!!.play()
+            actionString.equals(ACTION_PAUSE, ignoreCase = true) -> transportControls!!.pause()
+            actionString.equals(ACTION_NEXT, ignoreCase = true) -> transportControls!!.skipToNext()
+            actionString.equals(ACTION_PREVIOUS, ignoreCase = true) -> transportControls!!.skipToPrevious()
+            actionString.equals(ACTION_STOP, ignoreCase = true) -> transportControls!!.stop()
         }
     }
 
-    private fun register_playNewAudio() {
+    private fun registerPlayNewAudio() {
         //Register playNewMedia receiver
-        val filter = IntentFilter(MainActivity.Broadcast_PLAY_NEW_AUDIO)
+        val filter = IntentFilter(MainActivity.BROADCAST_PLAY_NEW_AUDIO)
         registerReceiver(playNewAudio, filter)
     }
 
     companion object {
-        val ACTION_PLAY = "com.ternovyi.musicplayer.ACTION_PLAY"
-        val ACTION_PAUSE = "com.ternovyi.musicplayer.ACTION_PAUSE"
-        val ACTION_PREVIOUS = "com.ternovyi.musicplayer.ACTION_PREVIOUS"
-        val ACTION_NEXT = "com.ternovyi.musicplayer.ACTION_NEXT"
-        val ACTION_STOP = "com.ternovyi.musicplayer.ACTION_STOP"
+        const val ACTION_PLAY = "com.ternovyi.musicplayer.ACTION_PLAY"
+        const val ACTION_PAUSE = "com.ternovyi.musicplayer.ACTION_PAUSE"
+        const val ACTION_PREVIOUS = "com.ternovyi.musicplayer.ACTION_PREVIOUS"
+        const val ACTION_NEXT = "com.ternovyi.musicplayer.ACTION_NEXT"
+        const val ACTION_STOP = "com.ternovyi.musicplayer.ACTION_STOP"
 
         //AudioPlayer notification ID
-        private val NOTIFICATION_ID = 101
+        private const val NOTIFICATION_ID = 101
     }
 
 

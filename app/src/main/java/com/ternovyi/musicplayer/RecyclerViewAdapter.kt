@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-class RecyclerView_Adapter(var list: List<Audio>, var context: Context) :
-    RecyclerView.Adapter<RecyclerView_Adapter.ViewHolder>() {
+class RecyclerViewAdapter(var list: List<Audio>, var context: Context) :
+    RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         //Inflate the layout, initialize the View Holder
@@ -25,10 +25,6 @@ class RecyclerView_Adapter(var list: List<Audio>, var context: Context) :
 
     override fun getItemCount(): Int {
         return list.size
-    }
-
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

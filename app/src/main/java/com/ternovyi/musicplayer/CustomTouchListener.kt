@@ -5,11 +5,11 @@ import android.support.v7.widget.RecyclerView
 import android.view.GestureDetector
 import android.view.MotionEvent
 
-class CustomTouchListener(context: Context, var clickListener: OnItemClickListener?) :
+class CustomTouchListener(context: Context, private var clickListener: OnItemClickListener?) :
     RecyclerView.OnItemTouchListener {
 
     //Gesture detector to intercept the touch events
-    var gestureDetector: GestureDetector? = null
+    private var gestureDetector: GestureDetector? = null
 
     init {
         gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {

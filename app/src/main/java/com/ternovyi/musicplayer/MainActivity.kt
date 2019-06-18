@@ -29,11 +29,11 @@ class MainActivity : AppCompatActivity() {
 
     private var player: MediaPlayerService? = null
     var serviceBound = false
-    var audioList: ArrayList<Audio>? = null
+    private var audioList: ArrayList<Audio>? = null
 
     private lateinit var collapsingImageView: ImageView
 
-    internal var imageIndex = 0
+    private var imageIndex = 0
 
     //Binding this Client to the AudioPlayer Service
     private val serviceConnection = object : ServiceConnection {
@@ -95,15 +95,15 @@ class MainActivity : AppCompatActivity() {
                 listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
 
-            if (listPermissionsNeeded.isNotEmpty()) {
+            return if (listPermissionsNeeded.isNotEmpty()) {
                 ActivityCompat.requestPermissions(
                     this,
                     listPermissionsNeeded.toTypedArray(),
                     REQUEST_ID_MULTIPLE_PERMISSIONS
                 )
-                return false
+                false
             } else {
-                return true
+                true
             }
         }
         return false
@@ -114,8 +114,8 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<String>, grantResults: IntArray
     ) {
 
-        val TAG = "LOG_PERMISSION"
-        Log.d(TAG, "Permission callback called-------")
+        val mTag = "LOG_PERMISSION"
+        Log.d(mTag, "Permission callback called-------")
         when (requestCode) {
             REQUEST_ID_MULTIPLE_PERMISSIONS -> {
 
@@ -124,18 +124,18 @@ class MainActivity : AppCompatActivity() {
                 perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
                 perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
                 // Fill with actual results from user
-                if (grantResults.size > 0) {
+                if (grantResults.isNotEmpty()) {
                     for (i in permissions.indices)
                         perms[permissions[i]] = grantResults[i]
                     // Check for both permissions
 
                     if (perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG, "Phone state and storage permissions granted")
+                        Log.d(mTag, "Phone state and storage permissions granted")
                         // process the normal flow
                         //else any one or both the permissions are not granted
                         loadAudioList()
                     } else {
-                        Log.d(TAG, "Some permissions are not granted ask again ")
+                        Log.d(mTag, "Some permissions are not granted ask again ")
                         //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
                         //                      //shouldShowRequestPermissionRationale will return true
                         //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         if (audioList != null && audioList!!.size > 0) {
             val recyclerView: RecyclerView = findViewById(R.id.recyclerview)
-            val adapter = RecyclerView_Adapter(audioList!!, application)
+            val adapter = RecyclerViewAdapter(audioList!!, application)
             recyclerView.adapter = adapter
             recyclerView.layoutManager = LinearLayoutManager(this)
             recyclerView.addOnItemTouchListener(CustomTouchListener(this, object : OnItemClickListener {
@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity() {
 
             //Service is active
             //Send a broadcast to the service -> PLAY_NEW_AUDIO
-            val broadcastIntent = Intent(Broadcast_PLAY_NEW_AUDIO)
+            val broadcastIntent = Intent(BROADCAST_PLAY_NEW_AUDIO)
             sendBroadcast(broadcastIntent)
         }
     }
@@ -289,8 +289,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
-        val Broadcast_PLAY_NEW_AUDIO = "com.ternovyi.musicplayer.PlayNewAudio"
+        const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
+        const val BROADCAST_PLAY_NEW_AUDIO = "com.ternovyi.musicplayer.PlayNewAudio"
     }
 }
 
